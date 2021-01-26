@@ -140,7 +140,6 @@ const Orders = () => {
                 <>
                     <ActionModal isVisible={isModalVisible} formData={modalFormData} modalTitle={modalType} okAction={handleOk} cancelAction={handleCancel} />
                     <DataTable data={orderData} columns={columns} rowSelection={rowSelection} />
-                    <ActionButtons addAction={addOrder} editAction={editOrder} deleteAction={deleteOrder} />
                 </>
             }
         </div>
