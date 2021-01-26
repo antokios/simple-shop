@@ -1,5 +1,4 @@
-import { Table, Button } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Table } from 'antd';
 import './DataTable.css';
 
 // rowSelection object indicates the need for row selection
@@ -24,11 +23,6 @@ const DataTable = (props) => {
                 columns={props.columns}
                 dataSource={props.data}
             />
-            <div className="ButtonGroup">
-                <Button type="primary" shape="round" icon={<PlusOutlined />} className="ActionButton" onClick={props.addAction}>Add</Button>
-                <Button type="primary" shape="round" icon={<EditOutlined />} className="ActionButton" onClick={props.editAction}>Edit</Button>
-                <Button danger type="primary" shape="round" icon={<DeleteOutlined />} className="ActionButton" onClick={props.deleteAction}>Delete</Button>
-            </div>
         </div>
     );
 };

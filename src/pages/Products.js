@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Spin, Space } from 'antd';
 import DataTable from '../components/DataTable';
+import ActionButtons from '../components/ActionButtons';
+import ActionModal from '../components/ActionModal';
 
 const columns = [
     {
@@ -29,6 +31,9 @@ const columns = [
 const Products = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [productData, setProductData] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalFormData, setModalFormData] = useState([]);
+    const [modalType, setModalType] = useState(undefined);
 
     useEffect(() => {
         getProducts();
@@ -60,15 +65,39 @@ const Products = () => {
     };
 
     const addProduct = () => {
-        console.log('Add Product!!!');
+        setModalType('Add New Product');
+        setIsModalVisible(true);
     };
 
     const editProduct = () => {
-        console.log('Edit Product!!!');
+        setModalType('Edit Product');
+        setIsModalVisible(true);
     };
 
     const deleteProduct = () => {
-        console.log('Delete Product!!!');
+        setModalType('Delete Product');
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        if (modalType) {
+            if (modalType.includes('Add')) {
+                console.log('Added Product!');
+            } else if (modalType.includes('Edit')) {
+                console.log('Edited Product!');
+            } else if (modalType.includes('Delete')) {
+                console.log('Deleted Product!');
+            }
+        }
+        setIsModalVisible(false);
+        setModalType(undefined);
+        setModalFormData([]);
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+        setModalType(undefined);
+        setModalFormData([]);
     };
 
     return (
@@ -78,13 +107,11 @@ const Products = () => {
                     <Spin size="large" />
                 </Space>
                 :
-                <DataTable
-                    data={productData}
-                    columns={columns}
-                    addAction={addProduct}
-                    editAction={editProduct}
-                    deleteAction={deleteProduct}
-                />
+                <>
+                    <ActionModal isVisible={isModalVisible} formData={modalFormData} modalTitle={modalType} okAction={handleOk} cancelAction={handleCancel} />
+                    <DataTable data={productData} columns={columns} />
+                    <ActionButtons addAction={addProduct} editAction={editProduct} deleteAction={deleteProduct} />
+                </>
             }
         </div>
     );

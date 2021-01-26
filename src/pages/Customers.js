@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Spin, Space } from 'antd';
 import DataTable from '../components/DataTable';
+import ActionButtons from '../components/ActionButtons';
+import ActionModal from '../components/ActionModal';
 
 const columns = [
     {
@@ -21,7 +23,10 @@ const columns = [
 const Customers = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [customerData, setCustomerData] = useState([]);
-
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalFormData, setModalFormData] = useState([]);
+    const [modalType, setModalType] = useState(undefined);
+    
     useEffect(() => {
         getCustomers();
     }, []);
@@ -51,15 +56,39 @@ const Customers = () => {
     };
 
     const addCustomer = () => {
-        console.log('Add Customer!!!');
+        setModalType('Add New Customer');
+        setIsModalVisible(true);
     };
 
     const editCustomer = () => {
-        console.log('Edit Customer!!!');
+        setModalType('Edit Customer');
+        setIsModalVisible(true);
     };
 
     const deleteCustomer = () => {
-        console.log('Delete Customer!!!');
+        setModalType('Delete Customer');
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        if (modalType) {
+            if (modalType.includes('Add')) {
+                console.log('Added Customer!');
+            } else if (modalType.includes('Edit')) {
+                console.log('Edited Customer!');
+            } else if (modalType.includes('Delete')) {
+                console.log('Deleted Customer!');
+            }
+        }
+        setIsModalVisible(false);
+        setModalType(undefined);
+        setModalFormData([]);
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+        setModalType(undefined);
+        setModalFormData([]);
     };
 
     return (
@@ -69,13 +98,11 @@ const Customers = () => {
                     <Spin size="large" />
                 </Space>
                 :
-                <DataTable
-                    data={customerData}
-                    columns={columns}
-                    addAction={addCustomer}
-                    editAction={editCustomer}
-                    deleteAction={deleteCustomer}
-                />
+                <>
+                    <ActionModal isVisible={isModalVisible} formData={modalFormData} modalTitle={modalType} okAction={handleOk} cancelAction={handleCancel} />
+                    <DataTable data={customerData} columns={columns} />
+                    <ActionButtons addAction={addCustomer} editAction={editCustomer} deleteAction={deleteCustomer} />
+                </>
             }
         </div>
     );

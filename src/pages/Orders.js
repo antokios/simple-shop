@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Spin, Space } from 'antd';
 import DataTable from '../components/DataTable';
+import ActionButtons from '../components/ActionButtons';
+import ActionModal from '../components/ActionModal';
 
 const columns = [
     {
@@ -21,6 +23,9 @@ const columns = [
 const Orders = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [orderData, setOrderData] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalFormData, setModalFormData] = useState([]);
+    const [modalType, setModalType] = useState(undefined);
 
     useEffect(() => {
         getOrders();
@@ -78,15 +83,39 @@ const Orders = () => {
     };
 
     const addOrder = () => {
-        console.log('Add Order!!!');
+        setModalType('Add New Order');
+        setIsModalVisible(true);
     };
 
     const editOrder = () => {
-        console.log('Edit Order!!!');
+        setModalType('Edit Order');
+        setIsModalVisible(true);
     };
 
     const deleteOrder = () => {
-        console.log('Delete Order!!!');
+        setModalType('Delete Order');
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        if (modalType) {
+            if (modalType.includes('Add')) {
+                console.log('Added Order!');
+            } else if (modalType.includes('Edit')) {
+                console.log('Edited Order!');
+            } else if (modalType.includes('Delete')) {
+                console.log('Deleted Order!');
+            }
+        }
+        setIsModalVisible(false);
+        setModalType(undefined);
+        setModalFormData([]);
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+        setModalType(undefined);
+        setModalFormData([]);
     };
 
     return (
@@ -96,13 +125,11 @@ const Orders = () => {
                     <Spin size="large" />
                 </Space>
                 :
-                <DataTable
-                    data={orderData}
-                    columns={columns}
-                    addAction={addOrder}
-                    editAction={editOrder}
-                    deleteAction={deleteOrder}
-                />
+                <>
+                    <ActionModal isVisible={isModalVisible} formData={modalFormData} modalTitle={modalType} okAction={handleOk} cancelAction={handleCancel} />
+                    <DataTable data={orderData} columns={columns} />
+                    <ActionButtons addAction={addOrder} editAction={editOrder} deleteAction={deleteOrder} />
+                </>
             }
         </div>
     );
