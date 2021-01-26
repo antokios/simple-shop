@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Spin, Space } from 'antd';
 import DataTable from '../components/DataTable';
 
 const columns = [
@@ -6,43 +9,56 @@ const columns = [
         dataIndex: 'name',
     },
     {
-        title: 'Age',
-        dataIndex: 'age',
+        title: 'Price',
+        dataIndex: 'price',
     },
     {
-        title: 'Address',
-        dataIndex: 'address',
-    },
-];
-
-const data = [
-    {
-        key: '1',
-        name: 'John Brown',
-        age: 32,
-        address: 'New York No. 1 Lake Park',
+        title: 'Description',
+        dataIndex: 'description',
     },
     {
-        key: '2',
-        name: 'Jim Green',
-        age: 42,
-        address: 'London No. 1 Lake Park',
+        title: 'Image URL',
+        dataIndex: 'imageUrl',
     },
     {
-        key: '3',
-        name: 'Joe Black',
-        age: 32,
-        address: 'Sidney No. 1 Lake Park',
-    },
-    {
-        key: '4',
-        name: 'Disabled User',
-        age: 99,
-        address: 'Sidney No. 1 Lake Park',
+        title: 'Stock Quantity',
+        dataIndex: 'stockQty',
     },
 ];
 
 const Products = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [productData, setProductData] = useState([]);
+
+    useEffect(() => {
+        getProducts();
+    }, []);
+
+    const getProducts = () => {
+        setIsLoading(true);
+
+        axios.get('http://localhost:4000/products/')
+            .then((res) => {
+                if (res.status === 200) {
+                    const data = res?.data;
+
+                    if (data?.length > 0) {
+                        let productData = [];
+                        for (let product of data) {
+                            product.key = product._id;
+                            productData.push(product);
+                        }
+
+                        setProductData(productData);
+                    }
+                }
+                setIsLoading(false);
+            })
+            .catch((err) => {
+                setIsLoading(false);
+            });
+    };
+
     const addProduct = () => {
         console.log('Add Product!!!');
     };
@@ -57,13 +73,19 @@ const Products = () => {
 
     return (
         <div>
-            <DataTable
-                data={data}
-                columns={columns}
-                addAction={addProduct}
-                editAction={editProduct}
-                deleteAction={deleteProduct}
-            />
+            {isLoading ?
+                <Space size="middle">
+                    <Spin size="large" />
+                </Space>
+                :
+                <DataTable
+                    data={productData}
+                    columns={columns}
+                    addAction={addProduct}
+                    editAction={editProduct}
+                    deleteAction={deleteProduct}
+                />
+            }
         </div>
     );
 };

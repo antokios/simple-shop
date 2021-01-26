@@ -1,48 +1,55 @@
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Spin, Space } from 'antd';
 import DataTable from '../components/DataTable';
 
 const columns = [
     {
-        title: 'Name',
-        dataIndex: 'name',
+        title: 'Email',
+        dataIndex: 'email',
     },
     {
-        title: 'Age',
-        dataIndex: 'age',
+        title: 'First Name',
+        dataIndex: 'firstName',
     },
     {
-        title: 'Address',
-        dataIndex: 'address',
-    },
-];
-
-const data = [
-    {
-        key: '1',
-        name: 'John Brown',
-        age: 32,
-        address: 'New York No. 1 Lake Park',
-    },
-    {
-        key: '2',
-        name: 'Jim Green',
-        age: 42,
-        address: 'London No. 1 Lake Park',
-    },
-    {
-        key: '3',
-        name: 'Joe Black',
-        age: 32,
-        address: 'Sidney No. 1 Lake Park',
-    },
-    {
-        key: '4',
-        name: 'Disabled User',
-        age: 99,
-        address: 'Sidney No. 1 Lake Park',
+        title: 'Last Name',
+        dataIndex: 'lastName',
     },
 ];
 
 const Customers = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [customerData, setCustomerData] = useState([]);
+
+    useEffect(() => {
+        getCustomers();
+    }, []);
+
+    const getCustomers = () => {
+        setIsLoading(true);
+        axios.get('http://localhost:4000/customers/')
+            .then((res) => {
+                if (res.status === 200) {
+                    const data = res?.data;
+
+                    if (data?.length > 0) {
+                        let customerData = [];
+                        for (let customer of data) {
+                            customer.key = customer._id;
+                            customerData.push(customer);
+                        }
+
+                        setCustomerData(customerData);
+                    }
+                }
+                setIsLoading(false);
+            })
+            .catch((err) => {
+                setIsLoading(false);
+            });
+    };
+
     const addCustomer = () => {
         console.log('Add Customer!!!');
     };
@@ -57,13 +64,19 @@ const Customers = () => {
 
     return (
         <div>
-            <DataTable
-                data={data}
-                columns={columns}
-                addAction={addCustomer}
-                editAction={editCustomer}
-                deleteAction={deleteCustomer}
-            />
+            {isLoading ?
+                <Space size="middle">
+                    <Spin size="large" />
+                </Space>
+                :
+                <DataTable
+                    data={customerData}
+                    columns={columns}
+                    addAction={addCustomer}
+                    editAction={editCustomer}
+                    deleteAction={deleteCustomer}
+                />
+            }
         </div>
     );
 };
