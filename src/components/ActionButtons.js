@@ -5,9 +5,21 @@ import './ActionButtons.css';
 const ActionButtons = (props) => {
     return (
         <div className="ButtonGroup">
-            <Button type="primary" shape="round" icon={<PlusOutlined />} className="ActionButton" onClick={props.addAction}>Add</Button>
-            <Button type="primary" shape="round" icon={<EditOutlined />} className="ActionButton" onClick={props.editAction}>Edit</Button>
-            <Button danger type="primary" shape="round" icon={<DeleteOutlined />} className="ActionButton" onClick={props.deleteAction}>Delete</Button>
+            {props.addAction ?
+                <Button type="primary" shape="round" icon={<PlusOutlined />} className="ActionButton" onClick={props.addAction}>Add</Button>
+                :
+                null
+            }
+            {props.editAction ?
+                <Button type="primary" shape="round" icon={<EditOutlined />} className="ActionButton" onClick={props.editAction}>Edit</Button>
+                :
+                null
+            }
+            {props.deleteAction ?
+                <Button danger type="primary" shape="round" icon={<DeleteOutlined />} className="ActionButton" onClick={props.deleteAction}>Delete</Button>
+                :
+                null
+            }
         </div>
     );
 };

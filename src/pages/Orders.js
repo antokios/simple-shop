@@ -26,6 +26,7 @@ const Orders = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalFormData, setModalFormData] = useState([]);
     const [modalType, setModalType] = useState(undefined);
+    const [selectedOrderId, setSelectedOrderId] = useState(undefined);
 
     useEffect(() => {
         getOrders();
@@ -88,13 +89,17 @@ const Orders = () => {
     };
 
     const editOrder = () => {
-        setModalType('Edit Order');
-        setIsModalVisible(true);
+        if (selectedOrderId) {
+            setModalType('Edit Order');
+            setIsModalVisible(true);
+        }
     };
 
     const deleteOrder = () => {
-        setModalType('Delete Order');
-        setIsModalVisible(true);
+        if (selectedOrderId) {
+            setModalType('Delete Order');
+            setIsModalVisible(true);
+        }
     };
 
     const handleOk = () => {
@@ -118,6 +123,13 @@ const Orders = () => {
         setModalFormData([]);
     };
 
+    const rowSelection = {
+        onChange: (selectedRowKey, selectedRow) => {
+            console.log(`selectedRowKeys: ${selectedRowKey}`, 'selectedRows: ', selectedRow);
+            setSelectedOrderId(selectedRowKey);
+        },
+    };
+
     return (
         <div>
             {isLoading ?
@@ -127,7 +139,7 @@ const Orders = () => {
                 :
                 <>
                     <ActionModal isVisible={isModalVisible} formData={modalFormData} modalTitle={modalType} okAction={handleOk} cancelAction={handleCancel} />
-                    <DataTable data={orderData} columns={columns} />
+                    <DataTable data={orderData} columns={columns} rowSelection={rowSelection} />
                     <ActionButtons addAction={addOrder} editAction={editOrder} deleteAction={deleteOrder} />
                 </>
             }

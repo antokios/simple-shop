@@ -26,7 +26,8 @@ const Customers = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalFormData, setModalFormData] = useState([]);
     const [modalType, setModalType] = useState(undefined);
-    
+    const [selectedCustomerId, setSelectedCustomerId] = useState(undefined);
+
     useEffect(() => {
         getCustomers();
     }, []);
@@ -57,17 +58,55 @@ const Customers = () => {
 
     const addCustomer = () => {
         setModalType('Add New Customer');
+        setModalFormData([
+            {
+                title: 'Email',
+                value: 'Email',
+            },
+            {
+                title: 'First Name',
+                value: 'First Name'
+            },
+            {
+                title: 'Last Name',
+                value: 'Last Name'
+            }
+        ]);
         setIsModalVisible(true);
     };
 
     const editCustomer = () => {
-        setModalType('Edit Customer');
-        setIsModalVisible(true);
+        if (selectedCustomerId) {
+            setModalType('Edit Customer');
+            setModalFormData([
+                {
+                    title: 'Email',
+                    value: ''
+                },
+                {
+                    title: 'First Name',
+                    value: ''
+                },
+                {
+                    title: 'Last Name',
+                    value: ''
+                }
+            ]);
+            setIsModalVisible(true);
+        }
     };
 
     const deleteCustomer = () => {
-        setModalType('Delete Customer');
-        setIsModalVisible(true);
+        if (selectedCustomerId) {
+            setModalType('Delete Customer');
+            const selectedCustomer = selectedCustomerId ? customerData.find((element) => element._id === selectedCustomerId[0]) : undefined;
+            setModalFormData([
+                {
+                    message: `Are you sure you want to delete ${selectedCustomer.firstName} ${selectedCustomer.lastName}?`,
+                }
+            ]);
+            setIsModalVisible(true);
+        }
     };
 
     const handleOk = () => {
@@ -91,6 +130,13 @@ const Customers = () => {
         setModalFormData([]);
     };
 
+    const rowSelection = {
+        onChange: (selectedRowKey, selectedRow) => {
+            console.log(`selectedRowKey: ${selectedRowKey}`, 'selectedRow: ', selectedRow);
+            setSelectedCustomerId(selectedRowKey);
+        },
+    };
+
     return (
         <div>
             {isLoading ?
@@ -100,7 +146,7 @@ const Customers = () => {
                 :
                 <>
                     <ActionModal isVisible={isModalVisible} formData={modalFormData} modalTitle={modalType} okAction={handleOk} cancelAction={handleCancel} />
-                    <DataTable data={customerData} columns={columns} />
+                    <DataTable data={customerData} columns={columns} rowSelection={rowSelection} />
                     <ActionButtons addAction={addCustomer} editAction={editCustomer} deleteAction={deleteCustomer} />
                 </>
             }

@@ -34,6 +34,7 @@ const Products = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalFormData, setModalFormData] = useState([]);
     const [modalType, setModalType] = useState(undefined);
+    const [selectedProductId, setSelectedProductId] = useState(undefined);
 
     useEffect(() => {
         getProducts();
@@ -70,13 +71,17 @@ const Products = () => {
     };
 
     const editProduct = () => {
-        setModalType('Edit Product');
-        setIsModalVisible(true);
+        if (selectedProductId) {
+            setModalType('Edit Product');
+            setIsModalVisible(true);
+        }
     };
 
     const deleteProduct = () => {
-        setModalType('Delete Product');
-        setIsModalVisible(true);
+        if (selectedProductId) {
+            setModalType('Delete Product');
+            setIsModalVisible(true);
+        }
     };
 
     const handleOk = () => {
@@ -100,6 +105,13 @@ const Products = () => {
         setModalFormData([]);
     };
 
+    const rowSelection = {
+        onChange: (selectedRowKey, selectedRow) => {
+            console.log(`selectedRowKey: ${selectedRowKey}`, 'selectedRows: ', selectedRow);
+            setSelectedProductId(selectedRowKey);
+        },
+    };
+
     return (
         <div>
             {isLoading ?
@@ -109,7 +121,7 @@ const Products = () => {
                 :
                 <>
                     <ActionModal isVisible={isModalVisible} formData={modalFormData} modalTitle={modalType} okAction={handleOk} cancelAction={handleCancel} />
-                    <DataTable data={productData} columns={columns} />
+                    <DataTable data={productData} columns={columns} rowSelection={rowSelection} />
                     <ActionButtons addAction={addProduct} editAction={editProduct} deleteAction={deleteProduct} />
                 </>
             }
