@@ -67,12 +67,56 @@ const Products = () => {
 
     const addProduct = () => {
         setModalType('Add New Product');
+        setModalFormData([
+            {
+                title: 'Name',
+                value: 'Name',
+            },
+            {
+                title: 'Price',
+                value: 'Price'
+            },
+            {
+                title: 'Description',
+                value: 'Description'
+            },
+            {
+                title: 'Image URL',
+                value: 'Image URL'
+            },
+            {
+                title: 'Stock Quantity',
+                value: 'Stock Quantity'
+            }
+        ]);
         setIsModalVisible(true);
     };
 
     const editProduct = () => {
         if (selectedProductId) {
             setModalType('Edit Product');
+            setModalFormData([
+                {
+                    title: 'Name',
+                    value: '',
+                },
+                {
+                    title: 'Price',
+                    value: ''
+                },
+                {
+                    title: 'Description',
+                    value: ''
+                },
+                {
+                    title: 'Image URL',
+                    value: ''
+                },
+                {
+                    title: 'Stock Quantity',
+                    value: ''
+                }
+            ]);
             setIsModalVisible(true);
         }
     };
@@ -80,6 +124,12 @@ const Products = () => {
     const deleteProduct = () => {
         if (selectedProductId) {
             setModalType('Delete Product');
+            const selectedProduct = selectedProductId ? productData.find((element) => element._id === selectedProductId[0]) : undefined;
+            setModalFormData([
+                {
+                    message: `Are you sure you want to delete ${selectedProduct.name}?`,
+                }
+            ]);
             setIsModalVisible(true);
         }
     };
@@ -91,6 +141,16 @@ const Products = () => {
             } else if (modalType.includes('Edit')) {
                 console.log('Edited Product!');
             } else if (modalType.includes('Delete')) {
+                axios.delete(`http://localhost:4000/products/${selectedProductId}`)
+                    .then((res) => {
+                        if (res.status === 200) {
+                            getProducts();
+                        }
+                        setIsLoading(false);
+                    })
+                    .catch((err) => {
+                        setIsLoading(false);
+                    });
                 console.log('Deleted Product!');
             }
         }

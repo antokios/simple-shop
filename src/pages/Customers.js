@@ -116,6 +116,17 @@ const Customers = () => {
             } else if (modalType.includes('Edit')) {
                 console.log('Edited Customer!');
             } else if (modalType.includes('Delete')) {
+                setIsLoading(true);
+                axios.delete(`http://localhost:4000/customers/${selectedCustomerId}`)
+                    .then((res) => {
+                        if (res.status === 200) {
+                            getCustomers();
+                        }
+                        setIsLoading(false);
+                    })
+                    .catch((err) => {
+                        setIsLoading(false);
+                    });
                 console.log('Deleted Customer!');
             }
         }

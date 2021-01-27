@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Spin, Space } from 'antd';
 import DataTable from '../components/DataTable';
-import ActionButtons from '../components/ActionButtons';
 import ActionModal from '../components/ActionModal';
 
 const columns = [
