@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Spin, Space } from 'antd';
 import DataTable from '../components/DataTable';
-import ActionModal from '../components/ActionModal';
 
 const columns = [
     {
@@ -33,9 +32,9 @@ const Orders = () => {
 
     const getOrders = () => {
         setIsLoading(true);
-        const promise1 = axios.get('http://localhost:4000/customers/');
-        const promise2 = axios.get('http://localhost:4000/products/');
-        const promise3 = axios.get('http://localhost:4000/orders/');
+        const promise1 = axios.get('https://node-simple-shop.herokuapp.com/customers/');
+        const promise2 = axios.get('https://node-simple-shop.herokuapp.com/products/');
+        const promise3 = axios.get('https://node-simple-shop.herokuapp.com/orders/');
 
         Promise.all([promise1, promise2, promise3]).then((results) => {
             const allCustomers = results[0]?.data;
@@ -137,7 +136,6 @@ const Orders = () => {
                 </Space>
                 :
                 <>
-                    <ActionModal isVisible={isModalVisible} formData={modalFormData} modalTitle={modalType} okAction={handleOk} cancelAction={handleCancel} />
                     <DataTable data={orderData} columns={columns} rowSelection={rowSelection} />
                 </>
             }

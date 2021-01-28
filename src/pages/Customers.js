@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Spin, Space } from 'antd';
+import { Spin, Space, Modal, Input } from 'antd';
 import DataTable from '../components/DataTable';
 import ActionButtons from '../components/ActionButtons';
-import ActionModal from '../components/ActionModal';
 
 const columns = [
     {
@@ -24,9 +23,11 @@ const Customers = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [customerData, setCustomerData] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [modalFormData, setModalFormData] = useState([]);
     const [modalType, setModalType] = useState(undefined);
     const [selectedCustomerId, setSelectedCustomerId] = useState(undefined);
+    const [newCustomerEmail, setNewCustomerEmail] = useState('');
+    const [newCustomerFirstName, setNewCustomerFirstName] = useState('');
+    const [newCustomerLastName, setNewCustomerLastName] = useState('');
 
     useEffect(() => {
         getCustomers();
@@ -34,7 +35,7 @@ const Customers = () => {
 
     const getCustomers = () => {
         setIsLoading(true);
-        axios.get('http://localhost:4000/customers/')
+        axios.get('https://node-simple-shop.herokuapp.com/customers')
             .then((res) => {
                 if (res.status === 200) {
                     const data = res?.data;
@@ -58,40 +59,16 @@ const Customers = () => {
 
     const addCustomer = () => {
         setModalType('Add New Customer');
-        setModalFormData([
-            {
-                title: 'Email',
-                value: 'Email',
-            },
-            {
-                title: 'First Name',
-                value: 'First Name'
-            },
-            {
-                title: 'Last Name',
-                value: 'Last Name'
-            }
-        ]);
         setIsModalVisible(true);
     };
 
     const editCustomer = () => {
         if (selectedCustomerId) {
+            const selectedCustomer = selectedCustomerId ? customerData.find((element) => element._id === selectedCustomerId[0]) : undefined;
             setModalType('Edit Customer');
-            setModalFormData([
-                {
-                    title: 'Email',
-                    value: ''
-                },
-                {
-                    title: 'First Name',
-                    value: ''
-                },
-                {
-                    title: 'Last Name',
-                    value: ''
-                }
-            ]);
+            setNewCustomerEmail('' +  selectedCustomer.email);
+            setNewCustomerFirstName('' +  selectedCustomer.firstName);
+            setNewCustomerLastName('' +  selectedCustomer.lastName);
             setIsModalVisible(true);
         }
     };
@@ -99,12 +76,6 @@ const Customers = () => {
     const deleteCustomer = () => {
         if (selectedCustomerId) {
             setModalType('Delete Customer');
-            const selectedCustomer = selectedCustomerId ? customerData.find((element) => element._id === selectedCustomerId[0]) : undefined;
-            setModalFormData([
-                {
-                    message: `Are you sure you want to delete ${selectedCustomer.firstName} ${selectedCustomer.lastName}?`,
-                }
-            ]);
             setIsModalVisible(true);
         }
     };
@@ -112,40 +83,125 @@ const Customers = () => {
     const handleOk = () => {
         if (modalType) {
             if (modalType.includes('Add')) {
-                console.log('Added Customer!');
+                setIsLoading(true);
+                if (newCustomerEmail?.length > 0 && newCustomerFirstName?.length > 0 && newCustomerLastName?.length > 0) {
+                    axios.post(`https://node-simple-shop.herokuapp.com/customers/`, {
+                        firstName: newCustomerFirstName,
+                        lastName: newCustomerLastName,
+                        email: newCustomerEmail
+                    })
+                        .then((res) => {
+                            setTimeout(() => {
+                                getCustomers();
+                            }, 100);
+                        })
+                        .catch((err) => {
+                            setIsLoading(false);
+                        });
+                }
             } else if (modalType.includes('Edit')) {
-                console.log('Edited Customer!');
+                setIsLoading(true);
+                if (newCustomerEmail?.length > 0 && newCustomerFirstName?.length > 0 && newCustomerLastName?.length > 0) {
+                    axios.put(`https://node-simple-shop.herokuapp.com/customers/${selectedCustomerId}`, {
+                        firstName: newCustomerFirstName,
+                        lastName: newCustomerLastName,
+                        email: newCustomerEmail
+                    })
+                        .then((res) => {
+                            setTimeout(() => {
+                                getCustomers();
+                            }, 100);
+                        })
+                        .catch((err) => {
+                            setIsLoading(false);
+                        });
+                }
             } else if (modalType.includes('Delete')) {
                 setIsLoading(true);
-                axios.delete(`http://localhost:4000/customers/${selectedCustomerId}`)
+                axios.delete(`https://node-simple-shop.herokuapp.com/customers/${selectedCustomerId}`)
                     .then((res) => {
-                        if (res.status === 200) {
+                        setTimeout(() => {
                             getCustomers();
-                        }
-                        setIsLoading(false);
+                        }, 100);
                     })
                     .catch((err) => {
                         setIsLoading(false);
                     });
-                console.log('Deleted Customer!');
             }
         }
         setIsModalVisible(false);
         setModalType(undefined);
-        setModalFormData([]);
+        setSelectedCustomerId(undefined);
+        setNewCustomerEmail('');
+        setNewCustomerFirstName('');
+        setNewCustomerLastName('');        
     };
 
     const handleCancel = () => {
         setIsModalVisible(false);
         setModalType(undefined);
-        setModalFormData([]);
+        setSelectedCustomerId(undefined);
+        setNewCustomerEmail('');
+        setNewCustomerFirstName('');
+        setNewCustomerLastName('');        
     };
 
     const rowSelection = {
         onChange: (selectedRowKey, selectedRow) => {
-            console.log(`selectedRowKey: ${selectedRowKey}`, 'selectedRow: ', selectedRow);
             setSelectedCustomerId(selectedRowKey);
         },
+    };
+
+    const onEmailChange = (e) => {
+        const { value } = e.target;
+        setNewCustomerEmail(value?.trim());
+    };
+
+    const onFirstNameChange = (e) => {
+        const { value } = e.target;
+        setNewCustomerFirstName(value?.trim());
+    };
+
+    const onLastNameChange = (e) => {
+        const { value } = e.target;
+        setNewCustomerLastName(value?.trim());
+    };
+
+    const renderModal = () => {
+        if (modalType && isModalVisible) {
+            if (modalType.includes('Add')) {
+
+                return (
+                    <Modal title={modalType} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+                        <Input placeholder={'Email'} onChange={onEmailChange} />
+                        <p />
+                        <Input placeholder={'First Name'} onChange={onFirstNameChange} />
+                        <p />
+                        <Input placeholder={'Last Name'} onChange={onLastNameChange} />
+                    </Modal>
+                );
+            } else if (modalType.includes('Edit')) {
+                const selectedCustomer = selectedCustomerId ? customerData.find((element) => element._id === selectedCustomerId[0]) : undefined;
+                return (
+                    <Modal title={modalType} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+                        <Input placeholder={'Email'} defaultValue={selectedCustomer.email} onChange={onEmailChange} />
+                        <p />
+                        <Input placeholder={'First Name'} defaultValue={selectedCustomer.firstName} onChange={onFirstNameChange} />
+                        <p />
+                        <Input placeholder={'Last Name'} defaultValue={selectedCustomer.lastName} onChange={onLastNameChange} />
+                    </Modal>
+                );
+            } else if (modalType.includes('Delete')) {
+                const selectedCustomer = selectedCustomerId ? customerData.find((element) => element._id === selectedCustomerId[0]) : undefined;
+                return (
+                    <Modal title={modalType} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+                        <p>{`Are you sure you want to delete ${selectedCustomer.firstName} ${selectedCustomer.lastName}?`}</p>
+                    </Modal>
+                );
+            }
+        } else {
+            return null;
+        }
     };
 
     return (
@@ -156,7 +212,7 @@ const Customers = () => {
                 </Space>
                 :
                 <>
-                    <ActionModal isVisible={isModalVisible} formData={modalFormData} modalTitle={modalType} okAction={handleOk} cancelAction={handleCancel} />
+                    {renderModal()}
                     <DataTable data={customerData} columns={columns} rowSelection={rowSelection} />
                     <ActionButtons addAction={addCustomer} editAction={editCustomer} deleteAction={deleteCustomer} />
                 </>
